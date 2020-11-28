@@ -1,5 +1,6 @@
 # opencv-pixel-picker
-You can check BGR or HSV value of the pixel. (or you can add other color spaces by yourself)  
+You can check BGR or HSV value of the pixel in the image.
+Or you can add other color spaces by yourself.
 It must use GUI.
 
 # Requirements
