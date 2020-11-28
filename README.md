@@ -1,9 +1,11 @@
 # opencv-pixel-picker
-You can check BGR or HSV value of the pixel. (or you can add other color spaces)
+You can check BGR or HSV value of the pixel. (or you can add other color spaces by yourself)  
+It must use GUI.
 
 # Requirements
 - Python3
 - OpenCV
+- Tkinter
 
 # Run
 ```python opencv-pixel-picker.py```
