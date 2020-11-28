@@ -3,7 +3,7 @@ You can check BGR or HSV value of the pixel. (or you can add other color spaces)
 
 # Requirements
 - Python3
-- Opencv
+- OpenCV
 
 # Run
 ```python opencv-pixel-picker.py```
