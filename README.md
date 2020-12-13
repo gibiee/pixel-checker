@@ -11,6 +11,7 @@ It must use GUI.
 # Run
 ```python opencv-pixel-picker.py```
 
+You can check pixel value on the image by mouse left click.  
 Then, you can close the window by enter any keys.
 
 # Example
