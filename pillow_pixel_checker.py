@@ -31,7 +31,7 @@ if __name__=='__main__':
 
     width, height = img.size
     
-    window = tk.Tk(className='Pillow Pixel Picker')
+    window = tk.Tk(className='Pillow Pixel Checker')
     window.bind('<Return>', press_enter)
     window.focus_force()
     canvas = tk.Canvas(window, width=width, height=height)

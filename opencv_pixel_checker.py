@@ -30,7 +30,7 @@ if __name__=='__main__':
     cv2.imshow("OpenCV Pixel Picker", img)
 
     # CALLBACK FUNCTION
-    cv2.setMouseCallback("OpenCV Pixel Picker", pick_color)
+    cv2.setMouseCallback("OpenCV Pixel Checker", pick_color)
 
     cv2.waitKey(0)
     cv2.destroyAllWindows()
