@@ -1,6 +1,6 @@
-import cv2
 import tkinter as tk
 from tkinter import filedialog
+import cv2
 
 ftypes = [
     ("Image", "*.jpg;*.jpeg;*.png;*.gif"),
@@ -27,10 +27,10 @@ if __name__=='__main__':
     img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     img_lab = cv2.cvtColor(img, cv2.COLOR_BGR2Lab)
 
-    cv2.imshow("BGR", img)
+    cv2.imshow("OpenCV Pixel Picker", img)
 
     # CALLBACK FUNCTION
-    cv2.setMouseCallback("BGR", pick_color)
+    cv2.setMouseCallback("OpenCV Pixel Picker", pick_color)
 
     cv2.waitKey(0)
     cv2.destroyAllWindows()
