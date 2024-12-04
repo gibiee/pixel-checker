@@ -1,7 +1,6 @@
 pillow==10.4.0
 opencv-python-headless==4.10.0.84
-gradio==4.41.0
-fastapi==0.112.2
+gradio
 
 # gradio v4.40.0 work
 # v4.41.0 동작
