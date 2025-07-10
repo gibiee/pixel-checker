@@ -1,7 +1,3 @@
-pillow==10.4.0
-opencv-python-headless==4.10.0.84
-gradio
-
-# gradio v4.40.0 work
-# v4.41.0 동작
-# v4.42.0 에러
+gradio==5.34.2
+opencv-python-headless==4.12.0.88
+matplotlib==3.10.3
