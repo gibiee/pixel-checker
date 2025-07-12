@@ -1,6 +1,7 @@
 ### pixel-checker
 1. Check Pixel-Value
 2. Check Pixel-Distribution
+3. Check Pixel-Distribution by Mask
 
 # Run
 [![HuggingFace Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-blue)](https://huggingface.co/spaces/gibiee/Pixel-Checker)
