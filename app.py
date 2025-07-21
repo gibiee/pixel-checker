@@ -69,9 +69,17 @@ def check_pixel_distribution(img_pil_rgba):
 def extract_from_editor(editor) :
     print(editor)
     img = editor['background']
+    img.save('img.png')
+
+    editor['composite'].save('composite.png')
+
     mask = editor['layers'][0].split()[3]
-    print(len(np.unique(mask)))
-    if len(np.unique(mask)) > 1 : img.putalpha(mask)
+
+    # editor는 RGB 상태로만 저장되어 있음. 따라서 img가 투명한 이미지라고 해도, 그 정보가 손실됨
+
+    mask_bool = np.where(np.array(mask) > 128, True, False)
+    # img.putalpha(Image.fromarray(mask_bool))
+    # img.save('temp.png')
     return img
 
 def analysis_pixel_value(img_rgba: Image.Image) :
@@ -140,11 +148,16 @@ with gr.Blocks(js=js_func) as demo :
         
         with gr.Row() :
             with gr.Column(scale=1):
-                input_img = gr.ImageEditor(sources=['upload'], type='pil', image_mode='RGBA', layers=False, show_label=False)
+                input_img = gr.Image(sources=['upload'], type='pil', image_mode='RGBA', scale=3, show_label=False)
+                input_editor = gr.ImageEditor(sources=['upload'], type='pil', image_mode='RGBA', layers=False, show_label=False, interactive=True)
+                
                 btn = gr.Button('Check', variant='primary')
                 cut_img = gr.Image(type='pil', image_mode='RGBA', show_label=False, show_download_button=False, show_share_button=False)
                 gr.Examples(examples=sorted(glob.glob('samples/*')), inputs=input_img)
-                btn.click(fn=extract_from_editor, inputs=[input_img], outputs=[cut_img])
+
+                input_img.change(fn=lambda x:x, inputs=[input_img], outputs=[input_editor])
+
+                btn.click(fn=extract_from_editor, inputs=[input_editor], outputs=[cut_img])
 
             with gr.Column(scale=2):
                 with gr.Row():
