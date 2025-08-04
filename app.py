@@ -8,9 +8,11 @@ from collections import Counter
 
 img = Image.open('samples/color_map.png').convert('RGBA')
 img_array = np.array(img)
+img_array.shape
 
 mask = img.convert('L')
 mask_bool = np.where(np.array(mask) > 128, True, False)
+img_array[mask_bool].shape
 
 r_pixels = img_array[:,:,0]
 Counter(r_pixels.flatten().tolist())
@@ -38,9 +40,15 @@ def check_pixel_value(img_pil_rgba: Image.Image, evt: gr.SelectData):
             pixels[i] = tuple(map(int, pixel))
     return pixels
 
-def check_pixel_distribution(img_pil_rgba):
-    rgba_array = np.array(img_pil_rgba)
-    r_pixels, g_pixels, b_pixels, a_pixels = rgba_array[:,:,0], rgba_array[:,:,1], rgba_array[:,:,2], rgba_array[:,:,3]
+def check_pixel_distribution(img_pil_rgba, mask_pil=None):
+    if mask_pil is None:
+        rgba_array = np.array(img_pil_rgba.convert('RGBA'))
+        r_pixels, g_pixels, b_pixels, a_pixels = rgba_array[:,:,0], rgba_array[:,:,1], rgba_array[:,:,2], rgba_array[:,:,3]
+    else:
+        mask_bool = np.where(np.array(mask_pil.convert('L')) > 128, True, False)
+        rgba_array = np.array(img_pil_rgba.convert('RGBA'))[mask_bool]
+        r_pixels, g_pixels, b_pixels, a_pixels = rgba_array[:,0], rgba_array[:,1], rgba_array[:,2], rgba_array[:,3]
+    
     r_counter = Counter(r_pixels.flatten().tolist())
     g_counter = Counter(g_pixels.flatten().tolist())
     b_counter = Counter(b_pixels.flatten().tolist())
@@ -66,29 +74,14 @@ def check_pixel_distribution(img_pil_rgba):
     df = pd.DataFrame(dict)
     return [df] * 7
 
-def extract_from_editor(editor) :
-    print(editor)
-    img = editor['background']
-    img.save('img.png')
-
-    editor['composite'].save('composite.png')
-
+def extract_from_editor(input_img, editor) :
+    cut_img_array = np.array(input_img.convert('RGBA'))
     mask = editor['layers'][0].split()[3]
-
-    # editor는 RGB 상태로만 저장되어 있음. 따라서 img가 투명한 이미지라고 해도, 그 정보가 손실됨
-
-    mask_bool = np.where(np.array(mask) > 128, True, False)
-    # img.putalpha(Image.fromarray(mask_bool))
-    # img.save('temp.png')
-    return img
-
-def analysis_pixel_value(img_rgba: Image.Image) :
-    img_rgb, img_hsv, mask = np.array(img.convert('RGB')), np.array(img.convert('HSV')), np.array(mask)
-    mask_bool = np.where(mask > 128, True, False)
-    
-    rgb_pixels = img_rgb[mask_bool]
-    hsv_pixels = img_hsv[mask_bool]
-
+    mask_array = np.array(mask.convert('L'))
+    cut_img_array[:, :, 3] = mask_array
+    Image.fromarray(cut_img_array).save('cut_image_alpha.png')
+    # 지금 문제가 있는 이유 : mask는 True/False로 binary 값으로 봐야하는데, alpha 값으로 적용하니 오류가 발생함
+    return Image.fromarray(cut_img_array), mask
 
 js_func = """
 function refresh() {
@@ -145,19 +138,18 @@ with gr.Blocks(js=js_func) as demo :
 
 
     with gr.Tab("Check Pixel-Distribution by Mask") :
-        
+        gr.Markdown("gr.ImageEditor에서 알파 채널이 무시되는 이슈가 있기 때문에, gr.Image를 통해 이미지를 업로드합니다.")
         with gr.Row() :
             with gr.Column(scale=1):
-                input_img = gr.Image(sources=['upload'], type='pil', image_mode='RGBA', scale=3, show_label=False)
+                input_img = gr.Image(sources=['upload'], type='pil', image_mode='RGBA', show_label=False)
                 input_editor = gr.ImageEditor(sources=['upload'], type='pil', image_mode='RGBA', layers=False, show_label=False, interactive=True)
                 
                 btn = gr.Button('Check', variant='primary')
-                cut_img = gr.Image(type='pil', image_mode='RGBA', show_label=False, show_download_button=False, show_share_button=False)
+                cut_img = gr.Image(type='pil', image_mode='RGBA', show_label=False, show_download_button=False, show_share_button=False, interactive=False)
+                mask_img = gr.Image(type='pil', image_mode='L', show_label=False, show_download_button=False, show_share_button=False, interactive=False)
                 gr.Examples(examples=sorted(glob.glob('samples/*')), inputs=input_img)
 
                 input_img.change(fn=lambda x:x, inputs=[input_img], outputs=[input_editor])
-
-                btn.click(fn=extract_from_editor, inputs=[input_editor], outputs=[cut_img])
 
             with gr.Column(scale=2):
                 with gr.Row():
@@ -169,5 +161,7 @@ with gr.Blocks(js=js_func) as demo :
                     h_barplot = gr.BarPlot(x='value', y='H_count', x_lim=[0, 255], x_bin=16)
                     s_barplot = gr.BarPlot(x='value', y='S_count', x_lim=[0, 255], x_bin=16)
                     v_barplot = gr.BarPlot(x='value', y='V_count', x_lim=[0, 255], x_bin=16)
+        
+        btn.click(fn=extract_from_editor, inputs=[input_img, input_editor], outputs=[cut_img, mask_img]).success(fn=check_pixel_distribution, inputs=[input_img, mask_img], outputs=[r_barplot, g_barplot, b_barplot, a_barplot, h_barplot, s_barplot, v_barplot])
 
 demo.launch()
