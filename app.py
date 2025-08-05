@@ -6,18 +6,6 @@ import numpy as np
 import pandas as pd
 from collections import Counter
 
-img = Image.open('samples/color_map.png').convert('RGBA')
-img_array = np.array(img)
-img_array.shape
-
-mask = img.convert('L')
-mask_bool = np.where(np.array(mask) > 128, True, False)
-img_array[mask_bool].shape
-
-r_pixels = img_array[:,:,0]
-Counter(r_pixels.flatten().tolist())
-np.unique(img_array[:, :, 3])
-
 def check_pixel_value(img_pil_rgba: Image.Image, evt: gr.SelectData):
     pointX, pointY = evt.index
 
@@ -77,10 +65,8 @@ def check_pixel_distribution(img_pil_rgba, mask_pil=None):
 def extract_from_editor(input_img, editor) :
     cut_img_array = np.array(input_img.convert('RGBA'))
     mask = editor['layers'][0].split()[3]
-    mask_array = np.array(mask.convert('L'))
-    cut_img_array[:, :, 3] = mask_array
-    Image.fromarray(cut_img_array).save('cut_image_alpha.png')
-    # 지금 문제가 있는 이유 : mask는 True/False로 binary 값으로 봐야하는데, alpha 값으로 적용하니 오류가 발생함
+    mask_bool = np.where(np.array(mask.convert('L')) > 128, True, False)
+    cut_img_array[~mask_bool] = (128, 128, 128, 255)
     return Image.fromarray(cut_img_array), mask
 
 js_func = """
